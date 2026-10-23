@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blutsand</title>
+<meta name="description" content="Gladiatoren-Manager: Kader, Verträge, Training und Kämpfe auf Leben und Tod.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Big+Shoulders+Display:wght@700;900&display=swap">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class="wrap" lang="de">
+  <header class="top">
+    <div class="brand">
+      <h1>Blutsand</h1>
+      <p id="rankLine">Dein Ludus. Dein Kader. Deine Grube.</p>
+    </div>
+    <div class="purse" id="purse" aria-live="polite"></div>
+  </header>
+  <div class="rank" id="rankBox"></div>
+
+  <nav class="tabs" role="tablist" aria-label="Bereiche">
+    <button role="tab" id="tab-roster" data-act="tab" data-tab="roster" aria-selected="true">Kader</button>
+    <button role="tab" id="tab-packs" data-act="tab" data-tab="packs" aria-selected="false">Packs</button>
+    <button role="tab" id="tab-arena" data-act="tab" data-tab="arena" aria-selected="false">Arena</button>
+    <button role="tab" id="tab-grube" data-act="tab" data-tab="grube" aria-selected="false">Grube</button>
+    <button role="tab" id="tab-chronik" data-act="tab" data-tab="chronik" aria-selected="false">Chronik</button>
+  </nav>
+
+  <section class="view" id="view-roster" role="tabpanel" aria-labelledby="tab-roster">
+    <div class="roster">
+      <div class="panel">
+        <h2>Dein Kader</h2>
+        <p class="hint" id="rosterCount"></p>
+        <div class="rlist" id="rlist"></div>
+        <details class="legend">
+          <summary>Kürzel-Legende</summary>
+          <dl id="legendList"></dl>
+        </details>
+      </div>
+      <div class="panel" id="detail">
+        <div class="dhead">
+          <div>
+            <div class="stage" id="dStage"></div>
+            <div class="seg mini" role="group" aria-label="Ansicht der Figur">
+              <button data-act="v2d" id="b2d" aria-pressed="true">2D</button>
+              <button data-act="v3d" id="b3d" aria-pressed="false">3D drehbar</button>
+            </div>
+          </div>
+          <div class="dinfo" id="dInfo"></div>
+        </div>
+        <div id="dBody"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="view" id="view-packs" role="tabpanel" aria-labelledby="tab-packs" hidden>
+    <div class="panel">
+      <h2>Sklavenmarkt</h2>
+      <p class="hint">Kaufe Packs mit Denaren und ziehe neue Kämpfer. Jeder bekommt eine zufällige Spezialisierung und 1 bis 4 Persönlichkeiten. Bessere Truhen schaltest du über deinen Rang frei.</p>
+      <div class="packs" id="packs"></div>
+      <div class="reveal" id="reveal" hidden></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-arena" role="tabpanel" aria-labelledby="tab-arena" hidden>
+    <div class="panel">
+      <h2>Die Arena</h2>
+      <div id="arenaBox"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-grube" role="tabpanel" aria-labelledby="tab-grube" hidden>
+    <div class="panel">
+      <h2>Rivalen</h2>
+      <p class="hint">Feste Gegner mit eigener Geschichte. Jeder Rang schaltet einen frei. Wer einen Rivalen zum ersten Mal besiegt, bekommt einen seiner Schüler.</p>
+      <div class="rivals" id="rivalBox"></div>
+    </div>
+    <div class="panel">
+      <h2>Grubenrangliste</h2>
+      <p class="hint">Die acht gefährlichsten Kämpfer der Grube, sortiert nach Kraft. Wer deine Kämpfer besiegt oder tötet, wird zum Nemesis, merkt sich das und wird mit jedem Kampf stärker. Kämpfe hier enden immer auf Leben und Tod.</p>
+      <div class="ladder" id="ladderBox"></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-chronik" role="tabpanel" aria-labelledby="tab-chronik" hidden>
+    <div class="panel">
+      <h2>Chronik deines Ludus</h2>
+      <div class="stats" id="chStats"></div>
+    </div>
+    <div class="panel">
+      <h2>Gedenksteine</h2>
+      <div class="graves" id="graves"></div>
+    </div>
+    <div class="panel">
+      <h2>Ereignisse</h2>
+      <ol class="chron" id="chronList"></ol>
+    </div>
+  </section>
+
+  <footer class="foot">
+    <span id="saveState">Spielstand wird in diesem Browser gespeichert.</span>
+    <button class="btn ghost sm" id="resetBtn" data-act="reset">Spielstand zurücksetzen</button>
+  </footer>
+</div>
+
+<div class="modal" id="modal" lang="de" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="mTitle" id="mBody"></div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<!-- Spiellogik: Reihenfolge beachten -->
+<script src="js/logik/grunddaten.js"></script>
+<script src="js/logik/persoenlichkeiten.js"></script>
+<script src="js/logik/ruhm.js"></script>
+<script src="js/logik/kaempfer.js"></script>
+<script src="js/logik/kampf.js"></script>
+<script src="js/logik/packs-arena.js"></script>
+<script src="js/logik/spielstand.js"></script>
+<script src="js/logik/grube.js"></script>
+<script src="js/logik/ablauf.js"></script>
+<script src="js/logik/ereignisse.js"></script>
+<!-- Figuren und Oberfläche -->
+<script src="js/figuren.js"></script>
+<script src="js/oberflaeche.js"></script>
+</body>
+</html>
