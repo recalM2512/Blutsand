@@ -4,41 +4,49 @@ Ein Gladiatoren-Manager im Browser. Du führst einen Ludus, ziehst Kämpfer aus 
 
 ## Spielen
 
-- **Online:** https://recalm2512.github.io/Blutsand/ (sobald GitHub Pages eingeschaltet ist)
+- **Online:** https://recalm2512.github.io/Blutsand/
 - **Lokal:** `index.html` im Browser öffnen. Es wird nichts installiert und nichts gebaut.
 
 Der Spielstand wird im Browser gespeichert.
 
-## Was schon drin ist
+## Die Bereiche
 
-- **Kader und Training:** Werte steigern, Schmiede, Umrüsten, Moral, Freundschaften und Rivalitäten im Kader
-- **Ausrüstung mit Kürzeln:** Griff (`1H`, `DW`, `2H`), Waffe (`LW`, `SW`), Schild (`–`, `PAR`, `SCU`), Rüstung (`LR`, `MR`, `SR`), 30 Kombinationen mit Stein-Schere-Papier-Kontern
-- **Persönlichkeiten:** 1 bis 4 pro Kämpfer, Stufe I bis III, mit Vor- und Nachteilen
-- **Ruhm:** fünf Ränge vom Hinterhof bis zum Kolosseum, Ruhmstufen für jeden Kämpfer
-- **Publikum und Urteil:** Spannungswert, Gnade oder Tod, Spenden, Missgunst
-- **Nemesis-System und Grubenrangliste**, vier Story-Rivalen
-- **15 Zufallsereignisse** zwischen den Kämpfen
-- **Figuren** in 2D und als drehbare 3D-Ansicht
+- **Ludus (Trainingszentrum):** Kämpfer wählen, an vier Stationen trainieren (Pfahl, Laufbahn, Steine schleppen, Doctor), in der Waffenkammer mit Live-Vorschau umrüsten, in der Schmiede verbessern, Verletzte heilen. 2D- oder drehbare 3D-Figur.
+- **Kader (Vertragsmappe):** alle Kämpfer als Bogenkarten mit Filter und Sortierung. Ein Klick öffnet den Vertrag als Pergament: Persönlichkeit, Werte, Ausrüstung, Bilanz. Blättern mit ‹ › oder den Pfeiltasten.
+- **Verträge:** Kiste öffnen, fünf versiegelte Verträge, je nach Kiste 1, 2 oder 3 wählen. Beim Aufdecken glüht das Siegel in der Farbe der Seltenheit, bei Episch und Legendär gibt es einen Walkout.
+- **Arena:** Einlauf aus den Toren, Jubel, dann der Kampf mit Lebensbalken, Schadenszahlen, Block, Verfehlt und Ausgewichen. Tempo 1×, 2× oder 4×, Überspringen, Kampfprotokoll. Am Handy im Hochformat automatisch als Duell-Kamera (eigener Kämpfer oben, Gegner unten).
+- **Grube:** vier Story-Rivalen und die Grubenrangliste mit Nemesis-Kämpfern.
+- **Chronik:** Zahlen, Gedenksteine und das Ereignisbuch.
+
+Dazu: Ausrüstung mit Kürzeln (`1H`, `DW`, `2H`, `LW`, `SW`, `–`, `PAR`, `SCU`, `LR`, `MR`, `SR`), Persönlichkeiten I bis III, Ruhm-Ränge, Publikumsurteil mit Gnade oder Tod und 15 Zufallsereignisse.
 
 ## Ordnerstruktur
 
 ```
-index.html            Seite und Reihenfolge der Skripte
-css/style.css         Aussehen
-js/logik/             Spielregeln ohne Oberfläche
-  grunddaten.js         Zufall, Seltenheiten, Typen, Ausrüstung
-  persoenlichkeiten.js  Persönlichkeiten
-  ruhm.js               Ränge und Kämpfer-Ruhm
-  kaempfer.js           Kämpfer und Gegner erzeugen
-  kampf.js              Kampfsimulation, Spannung, Gnade
-  packs-arena.js        Truhen, Schwierigkeiten, Rivalen
-  spielstand.js         Neues Spiel, Kader, Training, Schmiede
-  grube.js              Rangliste und Nemesis
-  ablauf.js             Ablauf eines Kampfes und Urteil
-  ereignisse.js         Zufallsereignisse
-js/figuren.js         Zeichnen der Figuren (2D und 3D)
-js/oberflaeche.js     Bedienung, Anzeige, Speichern
-tests/simulation.js   Balance- und Ablauftest
+index.html              Seite und Reihenfolge der Skripte
+css/style.css           Aussehen im Kolosseum-Stil
+js/logik/               Spielregeln ohne Oberfläche
+  grunddaten.js           Zufall, Seltenheiten, Typen, Ausrüstung
+  persoenlichkeiten.js    Persönlichkeiten
+  ruhm.js                 Ränge und Kämpfer-Ruhm
+  kaempfer.js             Kämpfer und Gegner erzeugen
+  kampf.js                Kampfsimulation, Spannung, Gnade
+  packs-arena.js          Kisten, Schwierigkeiten, Rivalen
+  spielstand.js           Neues Spiel, Kader, Training, Schmiede, Verträge
+  grube.js                Rangliste und Nemesis
+  ablauf.js               Ablauf eines Kampfes und Urteil
+  ereignisse.js           Zufallsereignisse
+js/figuren.js           Zeichnen der Figuren (2D und 3D)
+js/oberflaeche/         Bedienung und Anzeige
+  basis.js                Speichern, Kopfzeile, Reiter, Karten, Ereignis-Fenster
+  ludus.js                Trainingszentrum
+  kader.js                Vertragsmappe und Vertragsfenster
+  vertraege.js            Kisten öffnen und Siegel brechen
+  arena.js                Vorbereitung, Kampfbühne, Duell-Kamera, Urteil
+  grube.js                Rivalen und Rangliste
+  chronik.js              Chronik
+  start.js                Spielstand laden und starten
+tests/simulation.js     Balance- und Ablauftest
 ```
 
 ## Testen
@@ -53,7 +61,6 @@ Der Test prüft die Balance der Ausrüstung und lässt einen Bot 40 Partien spie
 
 ## Als Nächstes geplant
 
-- Kolosseum-Look: Ludus als Trainingszentrum, Kader als Vertragsmappe, Vertragsöffnung mit fünf versiegelten Verträgen
-- Kompakte Arena mit Einlauf aus dem Tor und Duell-Kamera fürs Handy
 - Taktikwahl vor dem Kampf und „Missio erbitten“ im Kampf
 - Typische Helme für Murmillo, Thraex, Secutor und Retiarius
+- Aufträge, Ruhestand für Veteranen, Klänge, Spielstand exportieren

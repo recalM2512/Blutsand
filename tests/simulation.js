@@ -19,7 +19,7 @@ const code = files.map(f => fs.readFileSync(path.join(root, f), 'utf8')).join('\
 const L = new Function(code + `
   return { get S() { return S; }, set S(v) { S = v; }, newGame, simulate, spannParts, ALL_SPECS, eqFrom, TYPES, TYPE_KEYS,
     power, runMatch, newMatch, makeRandomOpp, decideWin, verdictLoss, winChoices, applyChoice, eventChoices, eventValid,
-    buyPack, train, STATS, healthy, slotsMax, rankIdx, RANKS, smith, reequip, heal };
+    openChest, signContracts, train, STATS, healthy, slotsMax, rankIdx, RANKS, smith, reequip, heal };
 `)();
 
 let failed = false;
@@ -70,7 +70,7 @@ for (let game = 0; game < 40; game++) {
         if (r && r.err) S.pendingEvent = null;
       }
       S.pendingEvent = null;
-      if (S.gold > 500 && S.roster.length < L.slotsMax()) L.buyPack('holz');
+      if (S.gold > 500 && S.roster.length < L.slotsMax()) { const o = L.openChest('holz'); if (!o.err) { const r = L.signContracts([Math.floor(Math.random() * 5)]); if (r.err) throw new Error(r.err); } }
       const g0 = S.roster[Math.floor(Math.random() * S.roster.length)];
       if (S.gold > 150) L.train(g0, L.STATS[Math.floor(Math.random() * 4)][0]);
       if (S.gold > 400) L.smith(S.roster[0], 'w');

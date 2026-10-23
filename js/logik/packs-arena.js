@@ -3,15 +3,20 @@
  * Reine Logik ohne Oberfläche. Wird in index.html in fester Reihenfolge geladen.
  */
 /* ---------- Packs, Arena ---------- */
+function pool5(o) { return [o, o, o, o, o]; }
 var PACKS = [
-  { id: 'holz', name: 'Holzkiste', price: 120, rank: 0, color: '#9a6a3a', desc: 'Ein Kämpfer aus der Kaserne.',
-    slots: [{ common: 70, rare: 25, epic: 4.5, legendary: 0.5 }], odds: 'Gewöhnlich 70 % · Selten 25 % · Episch 4,5 % · Legendär 0,5 %' },
-  { id: 'bronze', name: 'Bronzetruhe', price: 350, rank: 1, color: '#c07f3a', desc: 'Zwei Kämpfer, mindestens Selten.',
-    slots: [{ rare: 70, epic: 26, legendary: 4 }, { rare: 70, epic: 26, legendary: 4 }], odds: 'Pro Kämpfer: Selten 70 % · Episch 26 % · Legendär 4 %' },
-  { id: 'gold', name: 'Goldtruhe', price: 900, rank: 2, color: '#efbf4f', desc: 'Drei Kämpfer, einer garantiert Episch oder besser.',
-    slots: [{ rare: 55, epic: 38, legendary: 7 }, { rare: 55, epic: 38, legendary: 7 }, { epic: 80, legendary: 20 }], odds: 'Kämpfer 1 und 2: Selten 55 % · Episch 38 % · Legendär 7 %. Kämpfer 3: Episch 80 % · Legendär 20 %' },
-  { id: 'ruhm', name: 'Ruhmestruhe', price: 2400, rank: 3, color: '#b06be0', desc: 'Drei Kämpfer mit den besten Chancen auf Legendäre.',
-    slots: [{ rare: 30, epic: 55, legendary: 15 }, { epic: 75, legendary: 25 }, { epic: 60, legendary: 40 }], odds: 'Kämpfer 1: Selten 30 % · Episch 55 % · Legendär 15 %. Kämpfer 2: Episch 75 % · Legendär 25 %. Kämpfer 3: Episch 60 % · Legendär 40 %' }
+  { id: 'holz', name: 'Holzkiste', price: 120, rank: 0, color: '#8a5a34', n: 1, sure: null,
+    pool: pool5({ common: 70, rare: 25, epic: 4.5, legendary: 0.5 }),
+    desc: 'Fünf Verträge aus der Kaserne. Du unterzeichnest einen.', odds: 'Pro Vertrag: Gewöhnlich 70 % · Selten 25 % · Episch 4,5 % · Legendär 0,5 %' },
+  { id: 'bronze', name: 'Bronzetruhe', price: 350, rank: 1, color: '#b0753a', n: 2, sure: 'epic',
+    pool: pool5({ rare: 70, epic: 26, legendary: 4 }),
+    desc: 'Fünf Verträge, mindestens Selten. Ein Episch ist sicher dabei. Du unterzeichnest zwei.', odds: 'Pro Vertrag: Selten 70 % · Episch 26 % · Legendär 4 %' },
+  { id: 'gold', name: 'Goldtruhe', price: 900, rank: 2, color: '#d4a63a', n: 3, sure: 'legendary',
+    pool: pool5({ rare: 55, epic: 38, legendary: 7 }),
+    desc: 'Fünf Verträge, mindestens Selten. Ein Legendär ist sicher dabei. Du unterzeichnest drei.', odds: 'Pro Vertrag: Selten 55 % · Episch 38 % · Legendär 7 %' },
+  { id: 'ruhm', name: 'Ruhmestruhe', price: 2400, rank: 3, color: '#8a4fb0', n: 3, sure: 'legendary',
+    pool: pool5({ rare: 20, epic: 55, legendary: 25 }),
+    desc: 'Fünf Verträge mit den besten Chancen. Ein Legendär ist sicher dabei. Du unterzeichnest drei.', odds: 'Pro Vertrag: Selten 20 % · Episch 55 % · Legendär 25 %' }
 ];
 var DIFFS = [
   { id: 0, name: 'Leicht', sub: 'Schaukampf, ohne Todesgefahr', mult: 0.85, pay: 0.6, ruhm: 1, lethal: false, rank: 0 },

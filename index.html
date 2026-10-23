@@ -4,112 +4,158 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Blutsand</title>
-<meta name="description" content="Gladiatoren-Manager: Kader, Verträge, Training und Kämpfe auf Leben und Tod.">
+<meta name="description" content="Gladiatoren-Manager: Trainingszentrum, Vertragsmappe, versiegelte Verträge und Kämpfe auf Leben und Tod.">
+<meta name="theme-color" content="#2a1f17">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Big+Shoulders+Display:wght@700;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Alegreya+Sans:ital,wght@0,400;0,500;0,700;1,400&display=swap">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="wrap" lang="de">
-  <header class="top">
-    <div class="brand">
-      <h1>Blutsand</h1>
-      <p id="rankLine">Dein Ludus. Dein Kader. Deine Grube.</p>
+<header class="kopf">
+  <div class="kopf-in">
+    <div>
+      <h1 class="titel">BLUTSAND</h1>
+      <p class="unter" id="unterzeile">LUDUS · TRAININGSZENTRUM</p>
     </div>
-    <div class="purse" id="purse" aria-live="polite"></div>
-  </header>
-  <div class="rank" id="rankBox"></div>
+    <div class="plaketten" id="plaketten" aria-live="polite"></div>
+  </div>
+</header>
+<div class="arkaden" aria-hidden="true"><div class="arkaden-in" id="arkaden"></div></div>
 
-  <nav class="tabs" role="tablist" aria-label="Bereiche">
-    <button role="tab" id="tab-roster" data-act="tab" data-tab="roster" aria-selected="true">Kader</button>
-    <button role="tab" id="tab-packs" data-act="tab" data-tab="packs" aria-selected="false">Packs</button>
-    <button role="tab" id="tab-arena" data-act="tab" data-tab="arena" aria-selected="false">Arena</button>
-    <button role="tab" id="tab-grube" data-act="tab" data-tab="grube" aria-selected="false">Grube</button>
-    <button role="tab" id="tab-chronik" data-act="tab" data-tab="chronik" aria-selected="false">Chronik</button>
+<div class="reiter-wrap">
+  <nav class="reiter" role="tablist" aria-label="Bereiche" id="reiter">
+    <button role="tab" id="tab-ludus" data-act="tab" data-tab="ludus" aria-controls="view-ludus" aria-selected="true">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 4 V28 M9 28 H23 M9 11 H23 M12 7 L20 15" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Ludus</span></button>
+    <button role="tab" id="tab-kader" data-act="tab" data-tab="kader" aria-controls="view-kader" aria-selected="false">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M8 4 H24 V28 H8 Z M12 10 H20 M12 15 H20 M12 20 H17" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Kader</span></button>
+    <button role="tab" id="tab-vertraege" data-act="tab" data-tab="vertraege" aria-controls="view-vertraege" aria-selected="false">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 15 H27 V27 H5 Z M5 15 C5 7 27 7 27 15 M14 18 H18 V22 H14 Z" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Verträge</span></button>
+    <button role="tab" id="tab-arena" data-act="tab" data-tab="arena" aria-controls="view-arena" aria-selected="false">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M6 26 L22 10 M22 10 L26 6 M10 10 L26 26 M10 10 L6 6 M5 21 L11 27 M21 27 L27 21" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Arena</span></button>
+    <button role="tab" id="tab-grube" data-act="tab" data-tab="grube" aria-controls="view-grube" aria-selected="false">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 27 V18 H11 V27 M13 27 V9 H19 V27 M21 27 V14 H27 V27 M3 27 H29" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Grube</span></button>
+    <button role="tab" id="tab-chronik" data-act="tab" data-tab="chronik" aria-controls="view-chronik" aria-selected="false">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M7 5 H25 V27 H7 Z M11 10 H21 M11 15 H21 M11 20 H18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Chronik</span></button>
   </nav>
+</div>
 
-  <section class="view" id="view-roster" role="tabpanel" aria-labelledby="tab-roster">
-    <div class="roster">
-      <div class="panel">
-        <h2>Dein Kader</h2>
-        <p class="hint" id="rosterCount"></p>
-        <div class="rlist" id="rlist"></div>
-        <details class="legend">
-          <summary>Kürzel-Legende</summary>
-          <dl id="legendList"></dl>
-        </details>
-      </div>
-      <div class="panel" id="detail">
-        <div class="dhead">
-          <div>
-            <div class="stage" id="dStage"></div>
-            <div class="seg mini" role="group" aria-label="Ansicht der Figur">
-              <button data-act="v2d" id="b2d" aria-pressed="true">2D</button>
-              <button data-act="v3d" id="b3d" aria-pressed="false">3D drehbar</button>
+<main class="inhalt">
+  <!-- Ludus: Trainingszentrum -->
+  <section class="ansicht" id="view-ludus" role="tabpanel" aria-labelledby="tab-ludus">
+    <div class="ludus">
+      <aside class="tafel wahl" aria-labelledby="wahlTitel">
+        <h2 id="wahlTitel">Wer trainiert?</h2>
+        <p class="hinweis">Wähle einen Kämpfer aus deinem Kader.</p>
+        <div class="wahl-liste" id="lWahl"></div>
+      </aside>
+      <div class="ludus-haupt">
+        <section class="hof" aria-label="Trainingshof">
+          <div class="mauer" aria-hidden="true"><div><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div></div>
+          <div class="pfahl" aria-hidden="true"></div>
+          <div class="steine" aria-hidden="true"></div>
+          <div class="hof-in">
+            <div class="hof-info" id="lInfo"></div>
+            <div class="hof-fig">
+              <span class="vorschau" id="lVorschau" hidden>VORSCHAU</span>
+              <div id="lFig"></div>
+              <div class="segment ansicht-wahl" role="group" aria-label="Ansicht der Figur">
+                <button data-act="v2d" id="b2d" aria-pressed="true">2D</button>
+                <button data-act="v3d" id="b3d" aria-pressed="false">3D</button>
+              </div>
             </div>
+            <div class="hof-kraft" id="lKraft"></div>
           </div>
-          <div class="dinfo" id="dInfo"></div>
+        </section>
+        <p class="meldung" id="lMeldung" role="status" hidden></p>
+        <div class="ludus-spalten">
+          <section class="tafel" aria-labelledby="platzTitel">
+            <div class="kopfzeile"><h2 id="platzTitel">Trainingsplatz</h2><span class="hinweis" id="lGrenze"></span></div>
+            <div class="stationen" id="lStationen"></div>
+          </section>
+          <section class="tafel" aria-labelledby="kammerTitel">
+            <h2 id="kammerTitel">Waffenkammer</h2>
+            <p class="hinweis">Wähle neue Ausrüstung. Die Figur zieht sie sofort zur Probe an.</p>
+            <div class="kammer" id="lKammer"></div>
+            <div class="unterkopf" style="margin-top:16px">SCHMIEDE</div>
+            <div class="schmiede" id="lSchmiede"></div>
+          </section>
         </div>
-        <div id="dBody"></div>
       </div>
     </div>
   </section>
 
-  <section class="view" id="view-packs" role="tabpanel" aria-labelledby="tab-packs" hidden>
-    <div class="panel">
-      <h2>Sklavenmarkt</h2>
-      <p class="hint">Kaufe Packs mit Denaren und ziehe neue Kämpfer. Jeder bekommt eine zufällige Spezialisierung und 1 bis 4 Persönlichkeiten. Bessere Truhen schaltest du über deinen Rang frei.</p>
-      <div class="packs" id="packs"></div>
-      <div class="reveal" id="reveal" hidden></div>
+  <!-- Kader: Vertragsmappe -->
+  <section class="ansicht" id="view-kader" role="tabpanel" aria-labelledby="tab-kader" hidden>
+    <div class="kopfzeile">
+      <div>
+        <h2 class="seitentitel">Deine Verträge</h2>
+        <p class="hinweis" id="kZahl"></p>
+      </div>
+      <div class="werkzeug" id="kWerkzeug"></div>
     </div>
+    <div class="kartenraster" id="kRaster"></div>
+    <details class="legende">
+      <summary>Was bedeuten die Kürzel?</summary>
+      <dl id="kLegende"></dl>
+    </details>
   </section>
 
-  <section class="view" id="view-arena" role="tabpanel" aria-labelledby="tab-arena" hidden>
-    <div class="panel">
-      <h2>Die Arena</h2>
-      <div id="arenaBox"></div>
+  <!-- Verträge: Kisten öffnen -->
+  <section class="ansicht" id="view-vertraege" role="tabpanel" aria-labelledby="tab-vertraege" hidden>
+    <div class="kopfzeile">
+      <h2 class="seitentitel" id="vtTitel">Wähle eine Kiste</h2>
+      <p class="hinweis gross-hinweis" id="vtHinweis"></p>
     </div>
+    <div class="buehne-vt" id="vtBuehne"></div>
   </section>
 
-  <section class="view" id="view-grube" role="tabpanel" aria-labelledby="tab-grube" hidden>
-    <div class="panel">
-      <h2>Rivalen</h2>
-      <p class="hint">Feste Gegner mit eigener Geschichte. Jeder Rang schaltet einen frei. Wer einen Rivalen zum ersten Mal besiegt, bekommt einen seiner Schüler.</p>
-      <div class="rivals" id="rivalBox"></div>
-    </div>
-    <div class="panel">
-      <h2>Grubenrangliste</h2>
-      <p class="hint">Die acht gefährlichsten Kämpfer der Grube, sortiert nach Kraft. Wer deine Kämpfer besiegt oder tötet, wird zum Nemesis, merkt sich das und wird mit jedem Kampf stärker. Kämpfe hier enden immer auf Leben und Tod.</p>
-      <div class="ladder" id="ladderBox"></div>
-    </div>
+  <!-- Arena -->
+  <section class="ansicht" id="view-arena" role="tabpanel" aria-labelledby="tab-arena" hidden>
+    <div id="arenaBox"></div>
   </section>
 
-  <section class="view" id="view-chronik" role="tabpanel" aria-labelledby="tab-chronik" hidden>
-    <div class="panel">
-      <h2>Chronik deines Ludus</h2>
-      <div class="stats" id="chStats"></div>
-    </div>
-    <div class="panel">
-      <h2>Gedenksteine</h2>
-      <div class="graves" id="graves"></div>
-    </div>
-    <div class="panel">
-      <h2>Ereignisse</h2>
-      <ol class="chron" id="chronList"></ol>
-    </div>
+  <!-- Grube -->
+  <section class="ansicht" id="view-grube" role="tabpanel" aria-labelledby="tab-grube" hidden>
+    <section class="tafel" aria-labelledby="rivTitel">
+      <h2 id="rivTitel">Rivalen</h2>
+      <p class="hinweis">Feste Gegner mit eigener Geschichte. Jeder Rang schaltet einen frei. Wer einen Rivalen zum ersten Mal besiegt, bekommt einen seiner Schüler.</p>
+      <div class="rivalen" id="gRivalen"></div>
+    </section>
+    <section class="tafel" aria-labelledby="ranglTitel">
+      <h2 id="ranglTitel">Grubenrangliste</h2>
+      <p class="hinweis">Die acht gefährlichsten Kämpfer der Grube, sortiert nach Kraft. Wer deine Kämpfer besiegt oder tötet, wird zum Nemesis und wird mit jedem Kampf stärker. Kämpfe hier enden immer auf Leben und Tod.</p>
+      <div class="rangliste" id="gRangliste"></div>
+    </section>
   </section>
 
-  <footer class="foot">
-    <span id="saveState">Spielstand wird in diesem Browser gespeichert.</span>
-    <button class="btn ghost sm" id="resetBtn" data-act="reset">Spielstand zurücksetzen</button>
-  </footer>
+  <!-- Chronik -->
+  <section class="ansicht" id="view-chronik" role="tabpanel" aria-labelledby="tab-chronik" hidden>
+    <section class="tafel" aria-labelledby="chTitel">
+      <h2 id="chTitel">Chronik deines Ludus</h2>
+      <div class="zahlen" id="cZahlen"></div>
+    </section>
+    <section class="tafel" aria-labelledby="grabTitel">
+      <h2 id="grabTitel">Gedenksteine</h2>
+      <div class="graeber" id="cGraeber"></div>
+    </section>
+    <section class="tafel" aria-labelledby="ereTitel">
+      <h2 id="ereTitel">Ereignisse</h2>
+      <ol class="tafel-chronik" id="cListe"></ol>
+    </section>
+  </section>
+</main>
+
+<footer class="fuss">
+  <span id="speicherStand">Spielstand wird in diesem Browser gespeichert.</span>
+  <button class="knopf rand klein" data-act="reset" id="resetKnopf">Spielstand zurücksetzen</button>
+</footer>
+
+<div id="ueberlage"></div>
+<div class="modal" id="modal" hidden>
+  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="mTitel" id="mInhalt"></div>
 </div>
-
-<div class="modal" id="modal" lang="de" hidden>
-  <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="mTitle" id="mBody"></div>
-</div>
-<div class="toast" id="toast" role="status"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <!-- Spiellogik: Reihenfolge beachten -->
 <script src="js/logik/grunddaten.js"></script>
@@ -122,8 +168,16 @@
 <script src="js/logik/grube.js"></script>
 <script src="js/logik/ablauf.js"></script>
 <script src="js/logik/ereignisse.js"></script>
-<!-- Figuren und Oberfläche -->
+<!-- Figuren -->
 <script src="js/figuren.js"></script>
-<script src="js/oberflaeche.js"></script>
+<!-- Oberfläche: basis.js zuerst, start.js zuletzt -->
+<script src="js/oberflaeche/basis.js"></script>
+<script src="js/oberflaeche/ludus.js"></script>
+<script src="js/oberflaeche/kader.js"></script>
+<script src="js/oberflaeche/vertraege.js"></script>
+<script src="js/oberflaeche/arena.js"></script>
+<script src="js/oberflaeche/grube.js"></script>
+<script src="js/oberflaeche/chronik.js"></script>
+<script src="js/oberflaeche/start.js"></script>
 </body>
 </html>

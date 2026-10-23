@@ -34,14 +34,15 @@ function simulate(ga, gb, opt) {
   var B = combatant(gb, ga, { friends: opt.friendsB, rivals: opt.rivalsB });
   var C = { a: A, b: B }, ev = [], round = 0, leads = [], crits = 0, lastLead = 0, leadChanges = 0, lowShown = false;
   function frac(x) { return x.hp / x.mhp; }
-  function push(t, text, side) { ev.push({ t: t, text: text, hpA: A.hp, hpB: B.hp, stA: A.st / A.mst, stB: B.st / B.mst, lc: leadChanges, cr: crits, side: side || '' }); }
+  function push(t, text, side, dmg) { ev.push({ t: t, text: text, hpA: A.hp, hpB: B.hp, stA: A.st / A.mst, stB: B.st / B.mst, lc: leadChanges, cr: crits, side: side || '', dmg: dmg || 0 }); }
   function attack(at, df, k) {
     var aN = at.g.name, dN = df.g.name, o = k === 'a' ? 'b' : 'a';
     var tired = at.st < at.mst * 0.3;
     var hitCh = 0.64 + (at.spd - df.spd) * 0.012 + at.E.weapon.hit + at.bonus.hit - df.E.armor.evade - (tired ? 0.08 : 0);
     hitCh = clamp(hitCh, 0.3, 0.92);
     if (!chance(hitCh)) {
-      push('miss', df.g.eq.armor === 'LR' && chance(0.5) ? dN + ' tänzelt zur Seite.' : aN + ' verfehlt ' + dN + '.', k);
+      var dg = df.g.eq.armor === 'LR' && chance(0.5);
+      push(dg ? 'dodge' : 'miss', dg ? dN + ' tänzelt zur Seite und weicht aus.' : aN + ' verfehlt ' + dN + '.', k);
       return;
     }
     var lowMul = (at.fx.c_low && frac(at) < 0.3) ? (1 - at.fx.c_low) : 1;
@@ -59,13 +60,13 @@ function simulate(ga, gb, opt) {
     dmg = Math.max(1, Math.round(dmg));
     df.hp = Math.max(0, df.hp - dmg);
     var verb = pick(VERB[at.g.eq.weapon]);
-    if (blocked) push('block', dN + ' fängt den Schlag mit dem Schild ab und nimmt nur ' + dmg + ' Schaden.', k);
-    else push(crit ? 'crit' : 'hit', (crit ? 'Kritischer Treffer! ' : '') + aN + ' ' + verb + ' ' + dN + ': ' + dmg + ' Schaden.', k);
+    if (blocked) push('block', dN + ' fängt den Schlag mit dem Schild ab und nimmt nur ' + dmg + ' Schaden.', k, dmg);
+    else push(crit ? 'crit' : 'hit', (crit ? 'Kritischer Treffer! ' : '') + aN + ' ' + verb + ' ' + dN + ': ' + dmg + ' Schaden.', k, dmg);
     if (crit && df.hp > 0) push('cheer', pick(['Die Menge johlt!', 'Ein Aufschrei geht durch die Ränge!', 'Die Zuschauer springen auf!']), '');
     if (blocked && df.E.shield.counter && df.hp > 0 && at.hp > 0 && chance(df.E.shield.counter)) {
       var cd = Math.max(1, Math.round(df.g.str * 0.5 * (0.8 + rng() * 0.4)));
       at.hp = Math.max(0, at.hp - cd);
-      push('counter', dN + ' kontert mit der Parma: ' + cd + ' Schaden.', o);
+      push('counter', dN + ' kontert mit der Parma: ' + cd + ' Schaden.', o, cd);
     }
   }
   while (A.hp > 0 && B.hp > 0 && round < 40) {

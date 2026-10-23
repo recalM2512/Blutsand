@@ -1,4 +1,9 @@
-/* ===================== Figuren: 2D (SVG) und 3D (three.js) ===================== */
+/*
+ * Blutsand · Figuren: 2D (SVG) und 3D (three.js)
+ * figSVG(g, o) zeichnet einen Kämpfer mit seiner Ausrüstung.
+ * Optionen: flip (gespiegelt), ground (Bodenschatten, Standard an), spark (Funken je Seltenheit),
+ * crop (enger Zuschnitt für Karten), vb (eigener Ausschnitt), sil (Silhouette in einer Farbe), deko (für Screenreader ausblenden), cls.
+ */
 var RC = { common: '#a39a8e', rare: '#5b9be0', epic: '#b06be0', legendary: '#efbf4f' };
 var SKINS = ['#c9936a', '#a8754f', '#e0b48c', '#7a5238'];
 function shade(hex, a) {
@@ -16,13 +21,13 @@ function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '
 function figSVG(g, o) {
   o = o || {};
   var eq = g.eq, A = eq.armor, rc = RC[g.rar], tc = TYPES[g.type].color, skin = SKINS[g.skin || 0], W = wkey(eq);
-  var steel = '#dfe5ea', steel2 = '#b9c2cf', wood = '#6b4a2b', bronze = '#d9903f', dk = '#161a26';
+  var steel = '#dfe5ea', steel2 = '#b9c2cf', wood = '#6b4a2b', bronze = '#c98a3a', dk = '#1d1712';
   var cl = { LR: { t: '#b88a52', a: skin, l: skin, bt: '#6b4326' }, MR: { t: '#6f7f96', a: '#6f7f96', l: '#7a4a2a', bt: '#4a3626' }, SR: { t: '#8d97ab', a: '#8d97ab', l: '#8d97ab', bt: '#5a6572' } }[A];
   var out = [];
-  function P(pts, f) { out.push('<polygon points="' + pts.join(' ') + '" fill="' + f + '"/>'); }
+  function P(pts, f) { out.push('<polygon points="' + pts.join(' ') + '" fill="' + (o.sil || f) + '"/>'); }
   function T(cx, yT, yB, wT, wB, c) { var l = cx - wT / 2, lb = cx - wB / 2, r = cx + wT / 2, rb = cx + wB / 2; P([l, yT, cx, yT, cx, yB, lb, yB], shade(c, -24)); P([cx, yT, r, yT, rb, yB, cx, yB], c); }
   function M(pts) { return pts.map(function (v, i) { return i % 2 === 0 ? 240 - v : v; }); }
-  if (o.ground !== false) out.push('<ellipse cx="120" cy="285" rx="70" ry="8" fill="' + dk + '" stroke="' + rc + '" stroke-width="3"/>');
+  if (o.ground !== false && !o.sil) out.push('<ellipse cx="120" cy="285" rx="70" ry="8" fill="' + dk + '" stroke="' + rc + '" stroke-width="3"/>');
   var sp = o.spark ? RAR_KEYS.indexOf(g.rar) * 2 : 0, SPK = [[30, 60], [212, 74], [24, 150], [218, 160], [36, 236], [206, 240]];
   for (var s = 0; s < sp; s++) { var q = SPK[s]; P([q[0], q[1] - 8, q[0] + 5, q[1], q[0], q[1] + 8, q[0] - 5, q[1]], rc); }
   // Beine, Schienen, Stiefel
@@ -39,7 +44,7 @@ function figSVG(g, o) {
   else P([120, 134, 128, 144, 120, 154, 112, 144], rc);
   T(120, 176, 190, 52, 50, bronze);
   // Schultern
-  if (A === 'SR') { P([80, 110, 104, 104, 104, 134], '#c2792f'); P([160, 110, 136, 104, 136, 134], '#e8ab5f'); P([80, 110, 104, 104, 104, 109, 84, 114], rc); P([160, 110, 136, 104, 136, 109, 156, 114], rc); }
+  if (A === 'SR') { P([80, 110, 104, 104, 104, 134], '#b06a2a'); P([160, 110, 136, 104, 136, 134], '#d89a4f'); P([80, 110, 104, 104, 104, 109, 84, 114], rc); P([160, 110, 136, 104, 136, 109, 156, 114], rc); }
   if (A === 'MR') { P([88, 114, 104, 106, 104, 128], '#5a3a22'); P([152, 114, 136, 106, 136, 128], '#7a4a2a'); }
   // Arme
   var twoH = W === 'spear' || W === 'great';
@@ -51,11 +56,11 @@ function figSVG(g, o) {
   T(120, 90, 106, 16, 20, skin);
   P([120, 38, 142, 48, 142, 76, 120, 94], skin); P([120, 38, 98, 48, 98, 76, 120, 94], shade(skin, -24));
   if (A !== 'SR') { P([107, 70, 115, 70, 115, 75, 107, 75], dk); P([125, 70, 133, 70, 133, 75, 125, 75], dk); }
-  if (g.scars && A !== 'SR') out.push('<line x1="126" y1="64" x2="136" y2="84" stroke="#8e2f22" stroke-width="2.5"/>');
+  if (g.scars && A !== 'SR' && !o.sil) out.push('<line x1="126" y1="64" x2="136" y2="84" stroke="#8e2f22" stroke-width="2.5"/>');
   if (A === 'LR') { P([120, 38, 98, 48, 98, 58, 120, 58], '#2b1f15'); P([120, 38, 142, 48, 142, 58, 120, 58], '#3a2a1d'); P([98, 58, 142, 58, 142, 63, 98, 63], rc); }
   if (A === 'MR') {
     P([120, 34, 96, 46, 96, 66, 120, 66], shade(bronze, -24)); P([120, 34, 144, 46, 144, 66, 120, 66], bronze);
-    P([117, 66, 123, 66, 123, 84, 117, 84], bronze); P([96, 66, 104, 66, 104, 80, 96, 78], '#b8742c'); P([144, 66, 136, 66, 136, 80, 144, 78], '#e8ab5f');
+    P([117, 66, 123, 66, 123, 84, 117, 84], bronze); P([96, 66, 104, 66, 104, 80, 96, 78], '#a86e2c'); P([144, 66, 136, 66, 136, 80, 144, 78], '#d89a4f');
     P([120, 14, 131, 36, 109, 36], rc);
   }
   if (A === 'SR') {
@@ -75,7 +80,7 @@ function figSVG(g, o) {
     P([cx, cy - R, pts[5][0], pts[5][1], pts[4][0], pts[4][1], pts[3][0], pts[3][1], pts[2][0], pts[2][1], cx, cy + R].concat([]), shade(tc, -30));
     P([cx, cy - R, pts[6][0], pts[6][1], pts[7][0], pts[7][1], pts[0][0], pts[0][1], pts[1][0], pts[1][1], cx, cy + R], tc);
     P([cx, cy - 8, cx + 8, cy, cx, cy + 8, cx - 8, cy], rc);
-    out.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + (R - 3) + '" fill="none" stroke="' + bronze + '" stroke-width="2"/>');
+    if (!o.sil) out.push('<circle cx="' + cx + '" cy="' + cy + '" r="' + (R - 3) + '" fill="none" stroke="' + bronze + '" stroke-width="2"/>');
   }
   // Waffen
   function sword(mirror) {
@@ -110,8 +115,9 @@ function figSVG(g, o) {
     P([152, 56, 171, 50, 171, 98, 152, 92], '#8997a6'); P([171, 50, 190, 44, 190, 104, 171, 98], steel);
     P([146, 62, 130, 74, 146, 86], '#8997a6'); P([168, 66, 174, 72, 168, 78, 162, 72], rc);
   }
-  var lab = esc(g.name + ', ' + g.type + ', ' + codeStr(eq));
-  return '<svg viewBox="0 0 240 300" class="fig' + (o.cls ? ' ' + o.cls : '') + '" role="img" aria-label="' + lab + '">' +
+  var vb = o.vb || (o.crop ? '20 0 200 290' : '0 0 240 300');
+  var lab = o.deko ? 'aria-hidden="true" focusable="false"' : 'role="img" aria-label="' + esc(g.name + ', ' + g.type + ', ' + codeStr(eq)) + '"';
+  return '<svg viewBox="' + vb + '" class="fig' + (o.cls ? ' ' + o.cls : '') + '" ' + lab + '>' +
     (o.flip ? '<g transform="translate(240 0) scale(-1 1)">' : '<g>') + out.join('') + '</g></svg>';
 }
 
@@ -140,7 +146,7 @@ function build3D(T, g) {
     m.position.copy(p1).addScaledVector(d, 0.5); m.quaternion.setFromUnitVectors(new T.Vector3(0, 1, 0), d.clone().normalize()); return m;
   }
   var skinC = parseInt(SKINS[g.skin || 0].slice(1), 16);
-  var skin = Mt(skinC), dark = Mt(0x161a26), bronze = Mt(0xd9903f), steel = Mt(0xdfe5ea), rcm = Mt(rcH, rcH), wood = Mt(0x6b4a2b);
+  var skin = Mt(skinC), dark = Mt(0x1d1712), bronze = Mt(0xc98a3a), steel = Mt(0xdfe5ea), rcm = Mt(rcH, rcH), wood = Mt(0x6b4a2b);
   var C = { LR: { t: 0xb88a52, l: skinC, a: skinC, bt: 0x6b4326 }, MR: { t: 0x6f7f96, l: 0x7a4a2a, a: 0x6f7f96, bt: 0x4a3626 }, SR: { t: 0x8d97ab, l: 0x8d97ab, a: 0x8d97ab, bt: 0x5a6572 } }[A];
   function sword(len) {
     var s = new T.Group();
@@ -224,24 +230,24 @@ var viewer3D = null;
 function stop3D() { if (viewer3D) { viewer3D.stop(); viewer3D = null; } }
 function mount3D(box, g) {
   stop3D();
-  box.innerHTML = '<p class="hint">3D-Ansicht wird geladen…</p>';
+  box.innerHTML = '<p class="hinweis">3D-Ansicht wird geladen …</p>';
   return loadThree().then(function (T) {
     if (!box.isConnected) return;
     var canvas = document.createElement('canvas');
     canvas.className = 'c3d'; canvas.setAttribute('aria-label', '3D-Ansicht von ' + g.name + '. Ziehen zum Drehen.');
     box.innerHTML = ''; box.appendChild(canvas);
     var renderer;
-    try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true }); }
-    catch (e) { box.innerHTML = '<p class="hint">Dein Browser kann keine 3D-Grafik darstellen. Die 2D-Figur zeigt dieselbe Ausrüstung.</p>'; return; }
+    try { renderer = new T.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true }); }
+    catch (e) { box.innerHTML = '<p class="hinweis">Dein Browser kann keine 3D-Grafik darstellen. Die 2D-Figur zeigt dieselbe Ausrüstung.</p>'; return; }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
-    var scene = new T.Scene(); scene.background = new T.Color(0x1d1712);
+    var scene = new T.Scene();
     var cam = new T.PerspectiveCamera(35, 1, 0.1, 50); cam.position.set(0, 1.5, 6.4); cam.lookAt(0, 1.1, 0);
     scene.add(new T.AmbientLight(0xffffff, 0.55));
     var d1 = new T.DirectionalLight(0xffe2c0, 0.95); d1.position.set(3, 5, 4); scene.add(d1);
     var d2 = new T.DirectionalLight(0x88aaff, 0.45); d2.position.set(-4, 3, -3); scene.add(d2);
     var pivot = new T.Group(); scene.add(pivot);
     var rcH = parseInt(RC[g.rar].slice(1), 16);
-    pivot.add(new T.Mesh(new T.CylinderGeometry(1.25, 1.35, 0.1, 8), new T.MeshStandardMaterial({ color: 0x161a26, flatShading: true })));
+    pivot.add(new T.Mesh(new T.CylinderGeometry(1.25, 1.35, 0.1, 8), new T.MeshStandardMaterial({ color: 0x3a2d22, flatShading: true })));
     pivot.children[0].position.y = -0.05;
     var ring = new T.Mesh(new T.TorusGeometry(1.3, 0.035, 4, 8), new T.MeshStandardMaterial({ color: rcH, emissive: rcH, emissiveIntensity: 0.7 }));
     ring.rotation.x = Math.PI / 2; ring.position.y = 0.01; pivot.add(ring);
@@ -276,6 +282,6 @@ function mount3D(box, g) {
     viewer3D = { stop: stop };
     requestAnimationFrame(loop);
   }).catch(function () {
-    if (box.isConnected) box.innerHTML = '<p class="hint">Die 3D-Bibliothek konnte nicht geladen werden. Die 2D-Figur zeigt dieselbe Ausrüstung.</p>';
+    if (box.isConnected) box.innerHTML = '<p class="hinweis">Die 3D-Bibliothek konnte nicht geladen werden. Die 2D-Figur zeigt dieselbe Ausrüstung.</p>';
   });
 }

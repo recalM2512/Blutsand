@@ -6,7 +6,7 @@
 function newGame() {
   S = { v: 2, gold: 300, ruhm: 0, wins: 0, losses: 0, fights: 0, roster: [], sel: null, fighter: null, diff: 1,
     rel: {}, chron: [], dead: [], ladder: [], rivals: {}, missgunst: 0, flags: {}, pendingEvent: null, evQueue: [], match: null,
-    challenge: null, savedAt: 0 };
+    challenge: null, pendingPack: null, savedAt: 0 };
   var a = makeGlad('common'), b = makeGlad('common');
   addFighter(a, true); addFighter(b, true);
   S.sel = a.id; S.fighter = a.id;
@@ -32,6 +32,7 @@ function addFighter(g, silent) {
     if (chance(0.08)) { setRel(g.id, x.id, 1); made++; }
     else if (chance(0.05)) { setRel(g.id, x.id, -1); made++; }
   });
+  g.joined = S.fights;
   S.roster.push(g);
   if (!silent) chron('neu', g.name + ' (' + RAR[g.rar].name + ', ' + g.type + ') tritt deinem Ludus bei.');
 }
@@ -101,12 +102,29 @@ function weighted(odds) {
   var r = rng() * total; for (k in odds) { r -= odds[k]; if (r <= 0) return k; }
   return Object.keys(odds)[0];
 }
-function buyPack(id) {
-  var p = PACKS.filter(function (x) { return x.id === id; })[0];
-  if (!p || rankIdx() < p.rank) return { err: 'Dieses Pack ist noch gesperrt.' };
+function chestById(id) { return PACKS.filter(function (x) { return x.id === id; })[0]; }
+function openChest(id) {
+  var p = chestById(id);
+  if (!p || rankIdx() < p.rank) return { err: 'Diese Truhe ist noch gesperrt.' };
+  if (S.pendingPack) return { err: 'Unterzeichne zuerst die offenen Verträge.' };
   if (S.gold < p.price) return { err: 'Nicht genug Denare.' };
-  if (S.roster.length + p.slots.length > slotsMax()) return { err: 'Nicht genug Kaderplätze. Verkaufe zuerst Kämpfer oder steige im Rang auf.' };
+  if (S.roster.length + p.n > slotsMax()) return { err: 'Nicht genug Kaderplätze. Löse zuerst Verträge auf oder steige im Rang auf.' };
   S.gold -= p.price;
-  var got = p.slots.map(function (o) { var g = makeGlad(weighted(o)); addFighter(g); return g; });
+  var list = p.pool.map(function (o) { return makeGlad(weighted(o)); });
+  if (p.sure) {
+    var best = Math.max.apply(null, list.map(function (g) { return RAR_KEYS.indexOf(g.rar); }));
+    if (best < RAR_KEYS.indexOf(p.sure)) list[rnd(0, list.length - 1)] = makeGlad(p.sure);
+  }
+  S.pendingPack = { id: id, n: p.n, contracts: list };
+  chron('info', p.name + ' geöffnet: fünf versiegelte Verträge liegen bereit.');
+  return { pack: S.pendingPack };
+}
+function signContracts(picks) {
+  var pp = S.pendingPack; if (!pp) return { err: 'Es gibt keine offenen Verträge.' };
+  picks = picks.filter(function (i, k, a) { return i >= 0 && i < pp.contracts.length && a.indexOf(i) === k; });
+  if (picks.length !== pp.n) return { err: 'Wähle genau ' + pp.n + (pp.n === 1 ? ' Vertrag.' : ' Verträge.') };
+  if (S.roster.length + pp.n > slotsMax()) return { err: 'Nicht genug Kaderplätze.' };
+  var got = picks.map(function (i) { var g = pp.contracts[i]; addFighter(g); return g; });
+  S.pendingPack = null;
   return { got: got };
 }
