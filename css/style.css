@@ -436,11 +436,15 @@ button.karte:hover { transform: translateY(-6px); box-shadow: 0 14px 26px rgba(4
 .zl-tired { color: #9fc0e8; font-style: italic; }
 /* Duell-Kamera */
 .kamera { --spd: 1; position: relative; width: 100%; max-width: 480px; margin: 0 auto; height: min(calc(100vh - 40px), 900px); min-height: 600px; display: flex; flex-direction: column; background: var(--nacht-2); color: var(--hell); overflow: hidden; border: 3px solid var(--nacht); }
-.fenster { position: relative; flex: 1 1 0; overflow: hidden; background: #c9b48e; }
+.fenster { position: relative; flex: 1 1 0; min-height: 0; overflow: hidden; background: #c9b48e; container-type: size; }
 .fenster .menge { position: absolute; left: -10px; right: -10px; top: -10px; height: 66%; display: flex; flex-wrap: wrap; gap: 8px; padding: 14px; filter: blur(3px); align-content: flex-start; }
 .fenster .menge span { display: block; width: 24px; height: 24px; border-radius: 50%; }
 .fenster .boden { position: absolute; left: 0; right: 0; bottom: 0; height: 38%; background: var(--sand); }
 .fenster .nah { position: absolute; left: calc(50% - 160px); bottom: -108px; width: 320px; z-index: 2; }
+/* Selfie-Kamera: Größe und Lage richten sich nach der Fensterhöhe, damit Kopf und Oberkörper immer im Bild sind */
+@supports (width: 1cqh) {
+  .fenster .nah { width: 118cqh; left: calc(50% - 59cqh); top: 2cqh; bottom: auto; }
+}
 .fenster .nah.fern { transform: scale(.42) translateY(-24%); filter: brightness(.25); }
 .fenster .nah.naehern { animation: naehern calc(1.7s / var(--spd)) ease-out both; }
 @keyframes naehern { from { transform: scale(.42) translateY(-24%); filter: brightness(.25); } to { transform: none; filter: none; } }
@@ -579,6 +583,11 @@ body.gesperrt { overflow: hidden; }
 .k-leiste .tempo button { width: 40px; }
 .k-leiste [data-act="kskip"] { font-size: 12px; padding: 0 6px; }
 .k-leiste [data-act="kansicht"] .breit { display: none; }
+.kurz { display: none; }
+.k-leiste .lang { display: none; }
+.k-leiste .kurz { display: inline; }
+.leiste button, .k-leiste button { min-width: 0; white-space: nowrap; overflow: hidden; }
+.reiter button > span:not(.punkt) { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .kamera .protokoll { width: 100%; bottom: 74px; }
 .k-leiste .reihe > [data-act="kskip"] { flex: 1 1 auto; }
 .walk { position: fixed; z-index: 70; }

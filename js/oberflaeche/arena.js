@@ -119,7 +119,7 @@ function kLeisteKnoepfe(view, fertig) {
   var ansicht = '<button data-act="kansicht" aria-label="' + (view === 'duell' ? 'Zur Seitenansicht wechseln' : 'Zur Duell-Kamera wechseln') + '">' +
     (view === 'duell' ? '<svg viewBox="0 0 24 16" width="18" height="12" aria-hidden="true"><rect x="1" y="1" width="22" height="14" rx="2" fill="none" stroke="#e9b65a" stroke-width="2"/></svg><span class="breit">SEITE</span>'
       : '<svg viewBox="0 0 16 24" width="12" height="18" aria-hidden="true"><rect x="1" y="1" width="14" height="22" rx="2" fill="none" stroke="#e9b65a" stroke-width="2"/><path d="M1 12 H15" stroke="#e9b65a" stroke-width="2"/></svg><span class="breit">KAMERA</span>') + '</button>';
-  var skip = '<button data-act="kskip" id="kSkip" aria-label="Kampf überspringen"' + (fertig ? ' disabled' : '') + '><svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M3 4 L11 10 L3 16 Z M10 4 L18 10 L10 16 Z" fill="currentColor"/></svg><span class="breit">ÜBERSPRINGEN</span></button>';
+  var skip = '<button data-act="kskip" id="kSkip" aria-label="Kampf überspringen"' + (fertig ? ' disabled' : '') + '><svg viewBox="0 0 20 20" width="14" height="14" aria-hidden="true"><path d="M3 4 L11 10 L3 16 Z M10 4 L18 10 L10 16 Z" fill="currentColor"/></svg><span class="breit lang">ÜBERSPRINGEN</span><span class="kurz">ZUM ENDE</span></button>';
   var prot = '<button data-act="kprot" aria-pressed="' + ui.protokoll + '" aria-label="Kampfprotokoll anzeigen"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M4 5 H16 M4 10 H16 M4 15 H12" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg></button>';
   return { tempo: tempo, ansicht: ansicht, skip: skip, prot: prot };
 }
