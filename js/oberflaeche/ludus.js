@@ -39,7 +39,7 @@ ANSICHT.ludus = function () {
     persChips(g, false) +
     '<div class="moral' + (g.moral < 40 ? ' tief' : '') + '"><span>MORAL</span><div class="balken" role="img" aria-label="Moral ' + g.moral + ' von 100"><i style="width:' + g.moral + '%"></i></div><b>' + g.moral + '</b></div>' +
     '<p class="hinweis">Moral wirkt im Kampf: ' + (moralFx >= 0 ? '+' : '−') + Math.abs(moralFx) + ' % Schaden und Treffer.</p>' +
-    statusMarken(g) +
+    statusMarken(g) + aufstiegBoxHTML(g) +
     (g.inj ? '<div class="knopfreihe"><button class="knopf" data-act="heal" data-id="' + g.id + '"' + (S.gold < healCost(g) ? ' disabled' : '') + '>Heiler rufen · ' + healCost(g) + ' Den.</button></div>' : '');
 
   var key = [g.id, codeStr(eq), g.rar, g.skin, g.inj ? 1 : 0, g.scars, ui.view3d, g.lv.s, ui.probe ? 1 : 0].join('|');

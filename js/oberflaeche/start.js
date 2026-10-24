@@ -24,7 +24,7 @@ $('#reiter').addEventListener('keydown', function (e) {
 document.addEventListener('keydown', function (e) {
   if (e.key !== 'Escape') return;
   if (ui.protokoll && $('#kProt')) { AKT.kprot(); return; }
-  if ($('#walk') && $('#walkWeiter')) { AKT.walkweiter(); }
+  var w = $('#walkWeiter'); if ($('#walk') && w) w.click();
 });
 /* Beim Drehen des Handys passt sich die Kampfansicht an */
 var drehT = null;

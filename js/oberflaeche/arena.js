@@ -28,9 +28,9 @@ function arenaGegner() {
   var t = ui.target;
   if (t && t.kind === 'ladder') { var f = ladderById(t.id); if (f) return f; ui.target = null; }
   if (t && t.kind === 'rival') return rivalFighter(t.id);
-  var g = byId(S.fighter); if (!g) return null;
-  var key = g.id + '|' + S.diff + '|' + power(g);
-  if (!ui.opp || ui.oppKey !== key) { ui.opp = makeRandomOpp(g); ui.oppKey = key; }
+  if (t && t.kind === 'aufstieg') { var ag = byId(t.id); if (ag && aufstiegInfo(ag).bereit) return pruefer(ag); ui.target = null; }
+  var G = aktuellerGegner(), key = G.foe.id + '|' + S.diff + '|' + G.foe.scouted;
+  if (!ui.opp || ui.oppKey !== key) { ui.opp = gegnerMitDiff(G.foe, S.diff); ui.oppKey = key; }
   return ui.opp;
 }
 function schaetzung(g, foe) {
@@ -47,6 +47,25 @@ function vergleichHTML(a, b) {
     return '<div class="vergleich-zeile"><b>' + r[1] + '</b><div class="l"><i style="width:' + Math.round(r[1] / mx * 100) + '%"></i></div><span>' + r[0] + '</span><div class="r"><i style="width:' + Math.round(r[2] / mx * 100) + '%"></i></div><b>' + r[2] + '</b></div>';
   }).join('') + '</div>';
 }
+/* Herausforderungen vor dem Kampf: Haken, wenn dein gewählter Kämpfer die Bedingung schon erfüllt */
+function aufgabenHTML(g, foe, prize) {
+  var G = aktuellerGegner();
+  if (!G.aufgaben || !G.aufgaben.length) return '';
+  return '<div class="aufgaben"><div class="unterkopf">HERAUSFORDERUNGEN · BONUSGOLD BEI SIEG</div><ul>' + G.aufgaben.map(function (a) {
+    var vor = aufgabeVorab(a), ok = vor && aufgabeOk(a, g, null, foe);
+    var cls = !vor ? 'offen' : ok ? 'erfuellt' : 'fehlt';
+    var st = !vor ? 'Entscheidet sich im Kampf' : ok ? 'Dein Kämpfer erfüllt die Bedingung' : 'Dein Kämpfer erfüllt die Bedingung nicht';
+    return '<li class="' + cls + '"><span class="haken" aria-hidden="true">' + (!vor ? '?' : ok ? '✓' : '✗') + '</span><span>' + esc(aufgabeText(a)) + '<small>' + st + '</small></span><b>+' + fmt(aufgabeGold(a, prize)) + ' Den.</b></li>';
+  }).join('') + '</ul></div>';
+}
+/* Herausforderungen nach dem Kampf */
+function aufgabenErgHTML(m) {
+  if (!m.aufgabenErg || !m.aufgabenErg.length) return '';
+  return '<div class="aufgaben"><div class="unterkopf">HERAUSFORDERUNGEN</div><ul>' + m.aufgabenErg.map(function (a) {
+    return '<li class="' + (a.ok ? 'erfuellt' : 'fehlt verpasst') + '"><span class="haken" aria-hidden="true">' + (a.ok ? '✓' : '✗') + '</span><span>' + esc(a.t) +
+      '<small>' + (a.ok ? 'Geschafft, das Gold ist schon in deiner Kasse' : m.win ? 'Nicht geschafft' : 'Gilt nur bei einem Sieg') + '</small></span><b>' + (a.ok ? '+' : '') + fmt(a.gold) + ' Den.</b></li>';
+  }).join('') + '</ul></div>';
+}
 
 /* ---------- Vorbereitung ---------- */
 function vorkampfHTML() {
@@ -55,14 +74,17 @@ function vorkampfHTML() {
     var cg = byId(S.challenge.gid); if (cg && !cg.inj) S.fighter = cg.id;
   }
   if (S.challenge && !ladderById(S.challenge.id)) S.challenge = null;
+  if (ui.target && ui.target.kind === 'aufstieg') { var ag = byId(ui.target.id); if (ag && aufstiegInfo(ag).bereit) S.fighter = ag.id; else ui.target = null; }
   fixSelection();
-  var h = healthy(), t = ui.target, out = '<div class="kopfzeile"><h2 class="seitentitel">Die Arena</h2><p class="hinweis">Wähle deinen Kämpfer und den Gegner. Dann öffnen sich die Tore.</p></div>';
+  var h = healthy(), t = ui.target, r = rankIdx(), auf = t && t.kind === 'aufstieg';
+  var out = '<div class="kopfzeile"><h2 class="seitentitel">Die Arena</h2><p class="hinweis">Wähle deinen Kämpfer und den Gegner. Dann öffnen sich die Tore.</p></div>';
   if (t) {
     var tf = arenaGegner();
     if (tf) {
       var lbl = t.kind === 'rival' ? 'Rivalenkampf gegen <b>' + esc(tf.name) + '</b>, „' + esc(tf.title) + '“.' :
+        auf ? 'Aufstiegskampf: <b>' + esc(byId(t.id).name) + '</b> tritt gegen den Prüfer an. Gewinnt er, steigt er zu <b>' + RAR[tf.rar].name + '</b> auf. Verliert er, darf er es nach ' + PRUEF_SPERRE + ' Kämpfen erneut versuchen. Kein Kampf auf Leben und Tod.' :
         (t.challenge ? 'Sonderkampf: <b>' + esc(tf.name) + '</b> hat dich herausgefordert. Prämie ×1,5 und +2 Ruhm.' : 'Herausforderung: Platz ' + ladderPlace(tf.id) + ' der Grubenrangliste, <b>' + esc(tf.name) + '</b>.');
-      out += '<div class="banner-ziel"><p>' + lbl + '</p><button class="knopf rand klein" data-act="untarget">' + (t.challenge ? 'Herausforderung zurückziehen (−1 Ruhm)' : 'Zurück zum Zufallsgegner') + '</button></div>';
+      out += '<div class="banner-ziel"><p>' + lbl + '</p><button class="knopf rand klein" data-act="untarget">' + (t.challenge ? 'Herausforderung zurückziehen (−1 Ruhm)' : 'Zurück zum Ligakampf') + '</button></div>';
     }
   }
   if (!h.length) {
@@ -70,11 +92,13 @@ function vorkampfHTML() {
       '<div class="knopfreihe" style="margin-top:12px"><button class="knopf" data-act="rest">Ruhetag einlegen · 10 Den.</button><button class="knopf rand" data-act="tab" data-tab="ludus">Zum Ludus</button></div></div>';
   }
   var g = byId(S.fighter), foe = arenaGegner();
-  var opts = S.roster.slice().sort(function (a, b) { return power(b) - power(a); }).map(function (x) {
-    return '<option value="' + x.id + '"' + (x.id === g.id ? ' selected' : '') + (x.inj ? ' disabled' : '') + '>' + esc(x.name) + ' (Kraft ' + power(x) + ')' + (x.inj ? ' · verletzt' : '') + '</option>';
-  }).join('');
-  var r = rankIdx();
-  out += '<div class="tafel vorkampf"><div class="werkzeug"><div class="feld"><label for="kWahl">DEIN KÄMPFER</label><select id="kWahl" data-change="kfighter">' + opts + '</select></div>';
+  out += '<div class="tafel vorkampf"><div class="werkzeug">';
+  if (auf) out += '<div class="feld"><span>DEIN KÄMPFER</span><b class="fest">' + esc(g.name) + ' (Kraft ' + power(g) + ')</b></div>';
+  else {
+    out += '<div class="feld"><label for="kWahl">DEIN KÄMPFER</label><select id="kWahl" data-change="kfighter">' + S.roster.slice().sort(function (a, b) { return power(b) - power(a); }).map(function (x) {
+      return '<option value="' + x.id + '"' + (x.id === g.id ? ' selected' : '') + (x.inj ? ' disabled' : '') + '>' + esc(x.name) + ' (Kraft ' + power(x) + ')' + (x.inj ? ' · verletzt' : '') + '</option>';
+    }).join('') + '</select></div>';
+  }
   if (!t) {
     out += '<div class="feld"><span id="diffLbl">SCHWIERIGKEIT</span><div class="segment" role="group" aria-labelledby="diffLbl">' + DIFFS.map(function (d) {
       var lock = r < d.rank;
@@ -82,28 +106,34 @@ function vorkampfHTML() {
     }).join('') + '</div></div>';
   }
   out += '</div>';
-  var verdeckt = !foe.scouted, marken = '';
+  if (!t) out += '<div class="liga-zeile"><span class="marke gold">LIGA: ' + RANKS[r].n.toUpperCase() + '</span><span class="hinweis">Gegner hier: ' + ligaQuoten(r) + '. Mit jedem Rang kämpfst du in einer stärkeren Liga.</span></div>';
+  var verdeckt = !foe.scouted, marken = '<span class="marke selt-marke r-' + foe.rar + '">' + RAR[foe.rar].name + '</span>';
   if (foe.nemesis) marken += '<span class="marke rot">Nemesis</span>';
   if (foe.rival) marken += '<span class="marke gold">Rivale</span>';
   if (foe.title) marken += '<span class="titelzeile">„' + esc(foe.title) + '“</span>';
   out += '<div class="paarung">' +
     '<div class="seite">' + karteHTML(g, { gr: 'm' }) + persChips(g, false) + statusMarken(g) + '</div>' +
     '<div class="vs" aria-hidden="true">VS</div>' +
-    '<div class="seite">' + karteHTML(foe, { gr: 'm' }) + (marken ? '<div class="chips" style="justify-content:center">' + marken + '</div>' : '') + persChips(foe, verdeckt) + '</div>' +
+    '<div class="seite">' + karteHTML(foe, { gr: 'm' }) + '<div class="chips" style="justify-content:center">' + marken + '</div>' + persChips(foe, verdeckt) + '</div>' +
     '</div>' + vergleichHTML(g, foe);
   var kind = t ? t.kind : 'random';
   var rw = matchReward({ kind: kind, diff: S.diff, foe: foe, rivalId: t && t.kind === 'rival' ? t.id : null, challenge: t && t.challenge }, g);
-  var lethal = kind !== 'random' || DIFFS[S.diff].lethal;
+  var lethal = kind !== 'random' ? kind !== 'aufstieg' : DIFFS[S.diff].lethal;
+  if (!t) out += aufgabenHTML(g, foe, rw.prize);
   out += '<div class="belohnung">' +
     '<p>Siegprämie: <b>' + fmt(rw.prize) + ' Denare</b> und <b>' + rw.ruhm + ' Ruhm</b>, dazu bis zu +50 % Spektakelbonus bei einem spannenden Kampf. Bei einer Niederlage gibt es 15 Denare.</p>' +
-    (lethal ? '<p class="toedlich">Auf Leben und Tod: Verliert dein Kämpfer, entscheidet das Publikum, ob er stirbt. Je knapper der Kampf, desto eher gibt es Gnade.</p>' : '<p>Schaukampf: Niemand stirbt, aber Prämie und Ruhm sind kleiner.</p>') +
+    (auf ? '<p>Prüfung: Niemand stirbt. Bei einer Niederlage kann sich dein Kämpfer leicht verletzen.</p>' :
+      lethal ? '<p class="toedlich">Auf Leben und Tod: Verliert dein Kämpfer, entscheidet das Publikum, ob er stirbt. Je knapper der Kampf, desto eher gibt es Gnade.</p>' : '<p>Schaukampf: Niemand stirbt, aber Prämie und Ruhm sind kleiner.</p>') +
     (foe.scouted ? '<p>Späher-Einschätzung: Siegchance etwa <b>' + schaetzung(g, foe) + ' %</b>.</p>' : '<p>Persönlichkeiten und Siegchance des Gegners kennst du erst, wenn ein Späher ihn beobachtet hat.</p>') +
     '</div>';
-  out += '<div class="knopfreihe"><button class="knopf gross-k" data-act="kstart">Tore öffnen</button>';
-  if (!t) out += '<button class="knopf rand" data-act="reroll">Anderen Gegner auslosen</button>';
+  out += '<div class="knopfreihe"><button class="knopf gross-k" data-act="kstart">' + (auf ? 'Zum Aufstiegskampf' : 'Tore öffnen') + '</button>';
+  if (!t) {
+    var k = tauschKosten();
+    out += '<button class="knopf rand" data-act="reroll"' + (S.gold < k.gold ? ' disabled' : '') + ' title="Das Publikum hält das für feige.">Anderen Gegner suchen · ' + k.gold + ' Den.' + (k.ruhm ? ' · −' + k.ruhm + ' Ruhm' : '') + '</button>';
+  }
   if (!foe.scouted) out += '<button class="knopf rand" data-act="scout"' + (S.gold < SCOUT_COST ? ' disabled' : '') + '>Späher losschicken · ' + SCOUT_COST + ' Den.</button>';
   if (S.roster.some(function (x) { return x.inj; })) out += '<button class="knopf rand" data-act="rest">Ruhetag einlegen · 10 Den.</button>';
-  out += '</div></div>';
+  out += '</div>' + (!t ? '<p class="hinweis">Einen anderen Gegner zu suchen kostet Denare und 1 Ruhm, denn das Publikum hält es für feige. Unter die Grenze deines Rangs fällt dein Ruhm dabei nie.</p>' : '') + '</div>';
   return out;
 }
 
@@ -111,7 +141,7 @@ function vorkampfHTML() {
 function kNamen(m) { var foe = m.foeSnap || m.foe; return { a: m.me.name, b: foe.name, foe: foe }; }
 function kEtikett(m) {
   var foe = m.foeSnap || m.foe;
-  return m.kind === 'rival' ? 'RIVALE' : foe.nemesis ? 'NEMESIS' : m.kind === 'ladder' ? 'GRUBENKÄMPFER' : 'GEGNER';
+  return m.kind === 'rival' ? 'RIVALE' : m.kind === 'aufstieg' ? 'PRÜFER' : foe.nemesis ? 'NEMESIS' : m.kind === 'ladder' ? 'GRUBENKÄMPFER' : 'GEGNER';
 }
 function kLeisteKnoepfe(view, fertig) {
   var tempo = '<div class="tempo" role="group" aria-label="Kampftempo">' + [1, 2, 4].map(function (t) {
@@ -265,7 +295,8 @@ AKT.kstart = function () {
   var t = ui.target, m;
   if (t && t.kind === 'ladder') { if (!ladderById(t.id)) { ui.target = null; ANSICHT.arena(); return; } m = newMatch('ladder', g.id, { id: t.id, challenge: t.challenge }); }
   else if (t && t.kind === 'rival') m = newMatch('rival', g.id, { id: t.id });
-  else m = newMatch('random', g.id, { foe: arenaGegner() });
+  else if (t && t.kind === 'aufstieg') m = newMatch('aufstieg', g.id, {});
+  else { var G = aktuellerGegner(); m = newMatch('random', g.id, { foe: gegnerMitDiff(G.foe, S.diff), aufgaben: G.aufgaben }); }
   m.me = JSON.parse(JSON.stringify(g));
   m.foeSnap = JSON.parse(JSON.stringify(m.foe));
   runMatch(m);
@@ -321,7 +352,8 @@ function kEnde(sofort) {
   var m = K.m, n = kNamen(m), verl = m.win ? 'b' : 'a', sieger = m.win ? 'a' : 'b', duell = K.view === 'duell';
   K.z.liegt = verl; K.z.muede = {};
   K.z.ticker = (verl === 'a' ? n.a : n.b) + ' liegt im Sand. ' + (m.stage === 'decide' ? (m.kind === 'rival' ? 'Du entscheidest über den Rivalen.' : 'Das Publikum ruft sein Urteil.') : m.stage === 'verdict' ? 'Das Publikum entscheidet über sein Schicksal.' : 'Der Schaukampf ist vorbei.');
-  var titel = ((sieger === 'a' ? n.a : n.b) + ' siegt').toUpperCase() + (m.lethal ? '' : ' IM SCHAUKAMPF');
+  var titel = m.kind === 'aufstieg' ? (m.win ? (n.a + ' besteht die Prüfung').toUpperCase() : 'DIE PRÜFUNG IST GESCHEITERT') :
+    ((sieger === 'a' ? n.a : n.b) + ' siegt').toUpperCase() + (m.lethal ? '' : ' IM SCHAUKAMPF');
   if (sofort) {
     kNeuBauen();
   } else {
@@ -345,6 +377,7 @@ function kEnde(sofort) {
     }
     renderAll();
     var u = $('#arenaUnten'); if (u) setTimeout(function () { u.scrollIntoView({ behavior: REDUCE ? 'auto' : 'smooth', block: 'nearest' }); }, 60);
+    if (m.aufgestiegen) zeigeAufstieg(byId(m.gid), m.aufgestiegen);
   };
   if (sofort) fertig(); else kSpaeter(fertig, 1700);
 }
@@ -394,7 +427,7 @@ function entscheidungHTML(m) {
   var extra = m.kind === 'rival' ? 'Ein Rivale stirbt nicht in der Arena. Entscheide, wie du ihn behandelst.' :
     foe.nemesis ? 'Er ist dein Nemesis. Bei Gnade kann er sich mit etwas Glück deinem Ludus anschließen.' : '';
   return '<div class="ergebnis sieg"><h3>Sieg</h3><p>' + esc(m.gname) + ' besiegt ' + esc(foe.name) + '.</p>' + aufschluesselung(m) +
-    '<p>Prämie: <b>' + fmt(m.prize) + ' Denare</b> · Ruhm <b>+' + m.ruhmGain + '</b></p>' +
+    '<p>Prämie: <b>' + fmt(m.prize) + ' Denare</b> · Ruhm <b>+' + m.ruhmGain + '</b></p>' + aufgabenErgHTML(m) +
     (m.kind === 'rival' ? '' : '<div class="daumen">' + daumenSVG(m.crowdMercy) + '<div><span class="hinweis">Das Publikum fordert</span><br><strong class="' + (m.crowdMercy ? 'hoch' : 'runter') + '">' + (m.crowdMercy ? 'Gnade' : 'Tod') + '</strong>' +
       '<p class="hinweis">Folgst du dem Urteil, gibt es +1 Ruhm. Entscheidest du dagegen, sinkt für 3 Kämpfe die Gnade für deine eigenen Kämpfer.</p></div></div>') +
     (extra ? '<p class="hinweis">' + extra + '</p>' : '') +
@@ -420,12 +453,13 @@ function urteilHTML(m) {
 }
 function ergebnisHTML(m) {
   var foe = m.foeSnap || m.foe, head, cls;
-  if (m.win) { head = m.lethal ? 'Sieg' : 'Sieg im Schaukampf'; cls = 'sieg'; }
+  if (m.kind === 'aufstieg') { head = m.win ? 'Aufgestiegen' : 'Prüfung nicht bestanden'; cls = m.win ? 'sieg' : 'niederlage'; }
+  else if (m.win) { head = m.lethal ? 'Sieg' : 'Sieg im Schaukampf'; cls = 'sieg'; }
   else { head = !m.lethal ? 'Niederlage im Schaukampf' : m.mercy ? 'Begnadigt' : 'Gefallen'; cls = 'niederlage'; }
   var v = '';
   if (!m.win && m.lethal) v = '<div class="daumen">' + daumenSVG(m.mercy) + '<div><strong class="' + (m.mercy ? 'hoch' : 'runter') + '">' + (m.mercy ? 'Daumen hoch' : 'Daumen runter') + '</strong><p class="hinweis">Die Chance auf Gnade lag bei ' + m.verdictP + ' %' + (m.donated ? ' (mit Spende von ' + m.donated + ' Denaren)' : '') + '.</p></div></div>';
   var lines = (m.win ? ['Prämie: ' + fmt(m.prize) + ' Denare · Ruhm +' + m.ruhmGain] : ['Trostgeld: 15 Denare']).concat(m.msgs || []);
-  return '<div class="ergebnis ' + cls + '"><h3>' + head + '</h3><p>' + esc(m.win ? m.gname + ' besiegt ' + foe.name + '.' : foe.name + ' besiegt ' + m.gname + '.') + '</p>' + aufschluesselung(m) + v +
+  return '<div class="ergebnis ' + cls + '"><h3>' + head + '</h3><p>' + esc(m.win ? m.gname + ' besiegt ' + foe.name + '.' : foe.name + ' besiegt ' + m.gname + '.') + '</p>' + aufschluesselung(m) + v + aufgabenErgHTML(m) +
     '<ul>' + lines.map(function (l) { return '<li>' + esc(l) + '</li>'; }).join('') + '</ul>' +
     '<div class="knopfreihe"><button class="knopf gross-k" data-act="weiter">Weiter</button></div></div>';
 }
@@ -458,11 +492,42 @@ ANSICHT.arena = function () {
 /* ---------- Aktionen der Arena ---------- */
 AKT.kfighter = function (el) { S.fighter = el.value; ui.estKey = ''; save(); ANSICHT.arena(); };
 AKT.diff = function (el) { S.diff = +el.dataset.d; ui.opp = null; ui.estKey = ''; save(); ANSICHT.arena(); };
-AKT.reroll = function () { ui.opp = null; ui.estKey = ''; ANSICHT.arena(); };
+AKT.reroll = function () {
+  var r = gegnerTauschen(); if (r.err) { toast(r.err); return; }
+  ui.opp = null; ui.estKey = '';
+  toast('Das Publikum pfeift: Du kneifst vor ' + r.alt + '. −' + r.kosten.gold + ' Denare' + (r.kosten.ruhm ? ', −' + r.kosten.ruhm + ' Ruhm' : '') + '.');
+  save(); renderKopf(); ANSICHT.arena();
+};
 AKT.scout = function () {
   var f = arenaGegner(); if (!f || S.gold < SCOUT_COST) { toast('Nicht genug Denare.'); return; }
-  S.gold -= SCOUT_COST; f.scouted = true; save(); renderKopf(); ANSICHT.arena();
+  S.gold -= SCOUT_COST; f.scouted = true;
+  if (!ui.target) { aktuellerGegner().foe.scouted = true; ui.opp = null; }
+  save(); renderKopf(); ANSICHT.arena();
 };
+AKT.aufstieg = function (el) {
+  var g = byId(el.dataset.id); if (!g) return;
+  var info = aufstiegInfo(g); if (!info.bereit) { toast(info.grund); return; }
+  S.fighter = g.id; ui.target = { kind: 'aufstieg', id: g.id }; ui.estKey = ''; ui.vertrag = null;
+  if (ui.lastMatch && !ui.kampf) { ui.lastMatch = null; ui.buehne = null; }
+  save();
+  if (ui.tab === 'arena') renderAll(); else zeige('arena');
+};
+/* Feier nach einem gewonnenen Aufstiegskampf */
+function zeigeAufstieg(g, au) {
+  if (!g) return;
+  var rc = GLOW[g.rar];
+  walkWeg();
+  document.body.insertAdjacentHTML('beforeend', '<div class="walk" id="walk" role="dialog" aria-modal="true" aria-label="Aufstieg zu ' + RAR[g.rar].name + '">' +
+    '<div class="strahl" style="background:repeating-conic-gradient(' + rc + ' 0deg 6deg, transparent 6deg 17deg)"></div>' +
+    '<div class="typ rein">AUFSTIEG</div>' +
+    '<div class="selt-gross rein" style="color:' + rc + ';animation-delay:.25s">' + RAR[g.rar].name.toUpperCase() + '</div>' +
+    '<div class="rein" style="animation-delay:.7s">' + karteHTML(g, { gr: 'l', ohneStatus: true }).replace('class="karte', 'style="box-shadow:0 0 60px ' + rc + '" class="karte') + '</div>' +
+    '<p class="rein" style="animation-delay:1s;max-width:440px">' + esc(g.name + ': ' + RAR[au.von].name + ' → ' + RAR[au.nach].name + '. Neue Obergrenze ' + capOf(g) + ' pro Wert.') + '</p>' +
+    '<button class="knopf rein" style="animation-delay:1.2s" data-act="aufstiegZu" id="walkWeiter">Weiter</button></div>');
+  document.body.classList.add('gesperrt');
+  setTimeout(function () { var b = $('#walkWeiter'); if (b) b.focus({ preventScroll: true }); }, 60);
+}
+AKT.aufstiegZu = function () { walkWeg(); };
 AKT.rest = function () {
   if (S.gold < 10 && S.roster.some(function (x) { return !x.inj; })) { toast('Nicht genug Denare.'); return; }
   S.gold = Math.max(0, S.gold - 10);

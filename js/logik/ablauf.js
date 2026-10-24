@@ -17,13 +17,8 @@ function tick(gid) {
   sortLadder();
 }
 
-function makeRandomOpp(g) {
-  var d = DIFFS[S.diff];
-  var spied = S.flags.spied > 0 ? 1.08 : 1;
-  var f = makeFoe(Math.max(20, Math.round(power(g) * d.mult * (0.93 + rng() * 0.12) * spied)));
-  if (S.flags.intel > 0) { f.scouted = true; }
-  return f;
-}
+/* Ein frischer Liga-Gegner mit der eingestellten Schwierigkeit (die Oberfläche nutzt aktuellerGegner()). */
+function makeRandomOpp() { return gegnerMitDiff(neuerLigaGegner().foe, S.diff); }
 function consumeOppFlags() {
   if (S.flags.spied > 0) S.flags.spied--;
   if (S.flags.intel > 0) S.flags.intel--;
@@ -31,14 +26,16 @@ function consumeOppFlags() {
 
 function newMatch(kind, gid, ref) {
   var m = { kind: kind, gid: gid, diff: S.diff, stage: 'pre' };
-  if (kind === 'random') { m.foe = ref.foe; m.lethal = DIFFS[S.diff].lethal; }
+  if (kind === 'random') { m.foe = ref.foe; m.lethal = DIFFS[S.diff].lethal; m.aufgaben = ref.aufgaben || []; }
+  else if (kind === 'aufstieg') { m.foe = pruefer(byId(gid)); m.lethal = false; m.ziel = S.pruefung.ziel; }
   else if (kind === 'ladder') { m.foe = ladderById(ref.id); m.foeId = ref.id; m.lethal = true; m.challenge = !!ref.challenge; }
   else if (kind === 'rival') { m.rivalId = ref.id; m.foe = rivalFighter(ref.id); m.lethal = true; }
   return m;
 }
 function matchReward(m, g) {
   var foe = m.foe, rb = 1 + 0.05 * rankIdx(), fx = fxOf(g), pay, ruhm;
-  if (m.kind === 'random') { var d = DIFFS[m.diff]; pay = d.pay; ruhm = d.ruhm; }
+  if (m.kind === 'random') { var d = DIFFS[m.diff]; pay = d.pay; ruhm = d.ruhm + ({ epic: 1, legendary: 2 }[foe.rar] || 0); }
+  else if (m.kind === 'aufstieg') { pay = 1.2; ruhm = 3; }
   else if (m.kind === 'ladder') {
     var place = ladderPlace(foe.id) || 8;
     pay = 1.4; ruhm = place <= 2 ? 5 : place <= 5 ? 3 : 2;
@@ -61,7 +58,7 @@ function runMatch(m) {
   m.res = res; m.win = res.winner === 'a'; m.sp = sp; m.spann = sp.total;
   m.sum = { hpA: res.hpA, hpB: res.hpB, mhpA: res.mhpA, mhpB: res.mhpB, rounds: res.rounds };
   m.msgs = []; m.gname = g.name;
-  if (m.kind === 'random') consumeOppFlags();
+  if (m.kind === 'random') { consumeOppFlags(); S.gegner = null; }
   var rw = matchReward(m, g);
   S.fights++;
   tick(g.id);
@@ -81,6 +78,8 @@ function runMatch(m) {
   }
   foe.scouted = true;
   if (m.kind === 'rival') { var st = rivalState(m.rivalId); if (m.win) st.beaten++; else st.lost++; }
+  if (m.kind === 'random') aufgabenAuswerten(m, g, rw.prize);
+  if (m.kind === 'aufstieg') pruefungAuswerten(m, g);
   if (!m.lethal) {
     m.stage = 'done';
     if (!m.win && chance(0.25)) { g.inj = Math.max(g.inj, 1); m.msgs.push(g.name + ' hat sich im Schaukampf leicht verletzt (1 Kampf Pause).'); }

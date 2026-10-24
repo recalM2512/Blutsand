@@ -14,10 +14,9 @@ function trimLadder() {
   }
   sortLadder();
 }
+/* Neue Grubenkämpfer kommen aus der eigenen Liga und sind etwas härter als normale Arena-Gegner. */
 function refillLadder() {
-  var top = S.roster.map(power).sort(function (a, b) { return b - a; }).slice(0, 3);
-  var avg = top.length ? top.reduce(function (s, v) { return s + v; }, 0) / top.length : 45;
-  while (S.ladder.length < 8) S.ladder.push(makeFoe(Math.max(28, Math.round(avg * 0.7 + rnd(-6, 10)))));
+  while (S.ladder.length < 8) S.ladder.push(ligaRohling(rankIdx(), 1.1));
   sortLadder();
 }
 function cleanFoe(f) {

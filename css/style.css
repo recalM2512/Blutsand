@@ -599,6 +599,24 @@ body.gesperrt { overflow: hidden; }
 .tafel-chronik li div { min-width: 0; overflow-wrap: anywhere; }
 .banner-ziel p { flex: 1 1 260px; }
 
+/* ---------- Liga, Herausforderungen, Aufstieg ---------- */
+.liga-zeile { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: center; justify-content: center; text-align: center; }
+.selt-marke { background: var(--fr); color: var(--tx); }
+.feld .fest { display: block; font-size: 16px; min-height: 44px; padding: 10px 0; }
+.aufgaben ul { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.aufgaben li { display: grid; grid-template-columns: 28px minmax(0, 1fr) auto; gap: 10px; align-items: center; background: var(--stein-3); border: 1px solid var(--rand); padding: 8px 10px; }
+.aufgaben .haken { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-weight: 700; background: var(--stein-2); border: 1px solid var(--rand-2); color: var(--tinte-2); }
+.aufgaben li.erfuellt .haken { background: var(--gruen); color: #fff; border-color: var(--gruen); }
+.aufgaben li.fehlt .haken { background: #f3d9d2; color: var(--rot); border-color: #d39686; }
+.aufgaben li small { display: block; font-size: 12.5px; color: var(--tinte-2); }
+.aufgaben li b { font-family: var(--f-titel); color: var(--bronze-t); white-space: nowrap; }
+.aufgaben li.verpasst b { text-decoration: line-through; opacity: .6; }
+.aufstieg-box { border-top: 1px dashed var(--rand-2); padding-top: 8px; display: flex; flex-direction: column; gap: 6px; }
+.aufstieg-box.bereit { border: 2px solid var(--gold); background: #f6ead0; padding: 8px 10px; }
+.aufstieg-box .balken { height: 8px; }
+.karte .verletzt.bereit-marke { background: var(--gold); color: var(--nacht); }
+.walk p { color: var(--hell); font-size: 16px; }
+
 /* ---------- Handy ---------- */
 @media (max-width: 760px) {
   .wahl-liste { flex-direction: row; overflow-x: auto; max-height: none; padding-bottom: 6px; scroll-snap-type: x proximity; }

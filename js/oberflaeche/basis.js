@@ -133,6 +133,15 @@ function daumenSVG(hoch, farbe) {
 }
 function maxLeben(g) { return Math.round((28 + g.end * 4.5) * (1 + fxOf(g).hp)); }
 function istBeschaeftigt(g) { return !!(S.match && S.match.gid === g.id && S.match.stage !== 'done'); }
+/* Kasten mit dem Stand zum Aufstieg in die nächste Seltenheit (Ludus und Vertrag) */
+function aufstiegBoxHTML(g) {
+  var au = aufstiegInfo(g); if (au.ende) return '<p class="hinweis">Höchste Seltenheit erreicht.</p>';
+  var A = AUFSTIEG[g.rar], ziel = RAR[au.ziel].name, pct = Math.min(100, Math.round((g.fame || 0) / FAME_MIN[A.stufe] * 100));
+  return '<div class="aufstieg-box' + (au.bereit ? ' bereit' : '') + '"><span class="unterkopf">AUFSTIEG ZU ' + ziel.toUpperCase() + '</span>' +
+    (au.genug ? '' : '<div class="balken" role="img" aria-label="Ruhm ' + (g.fame || 0) + ' von ' + FAME_MIN[A.stufe] + '"><i style="width:' + pct + '%;background:var(--gold)"></i></div>') +
+    (au.bereit ? '<p>Gewinnt er den Aufstiegskampf gegen einen Prüfer, wird er ' + ziel + '. Kein Kampf auf Leben und Tod.</p><div class="knopfreihe"><button class="knopf gold" data-act="aufstieg" data-id="' + g.id + '">Zum Aufstiegskampf</button></div>'
+      : '<p class="hinweis">' + esc(au.grund) + '</p>') + '</div>';
+}
 /* Bogenkarte: o.gr = '' | 'm' | 'l', o.knopf = { act, id, label } macht sie anklickbar */
 function karteHTML(g, o) {
   o = o || {};
@@ -143,7 +152,7 @@ function karteHTML(g, o) {
   var codes = codeOf(eq).map(function (x) { return '<span class="code">' + x + '</span>'; }).join('');
   return '<' + tag + ' class="karte ' + (o.gr || '') + ' r-' + g.rar + '"' + attr + '><span class="innen">' +
     '<span class="wert"><b>' + power(g) + '</b><small>' + SHORT[g.type] + '</small></span>' +
-    (g.inj && !o.ohneStatus ? '<span class="verletzt">VERLETZT</span>' : '') +
+    (g.inj && !o.ohneStatus ? '<span class="verletzt">VERLETZT</span>' : o.knopf && aufstiegInfo(g).bereit ? '<span class="verletzt bereit-marke">▲ AUFSTIEG</span>' : '') +
     figSVG(gg, { crop: true, ground: false, deko: true }) +
     '<span class="schild">' + esc(g.name) + '</span>' +
     '<span class="codes">' + codes + '</span>' +

@@ -19,10 +19,10 @@ var PACKS = [
     desc: 'Fünf Verträge mit den besten Chancen. Ein Legendär ist sicher dabei. Du unterzeichnest drei.', odds: 'Pro Vertrag: Selten 20 % · Episch 55 % · Legendär 25 %' }
 ];
 var DIFFS = [
-  { id: 0, name: 'Leicht', sub: 'Schaukampf, ohne Todesgefahr', mult: 0.85, pay: 0.6, ruhm: 1, lethal: false, rank: 0 },
-  { id: 1, name: 'Normal', sub: 'Auf Leben und Tod', mult: 0.95, pay: 1.0, ruhm: 2, lethal: true, rank: 0 },
-  { id: 2, name: 'Schwer', sub: 'Auf Leben und Tod', mult: 1.2, pay: 1.8, ruhm: 4, lethal: true, rank: 1 },
-  { id: 3, name: 'Meisterklasse', sub: 'Auf Leben und Tod', mult: 1.4, pay: 2.8, ruhm: 7, lethal: true, rank: 3 }
+  { id: 0, name: 'Leicht', sub: 'Schaukampf, ohne Todesgefahr', mult: 0.8, pay: 0.6, ruhm: 1, lethal: false, rank: 0 },
+  { id: 1, name: 'Normal', sub: 'Auf Leben und Tod', mult: 1.0, pay: 1.0, ruhm: 2, lethal: true, rank: 0 },
+  { id: 2, name: 'Schwer', sub: 'Auf Leben und Tod', mult: 1.25, pay: 1.8, ruhm: 4, lethal: true, rank: 1 },
+  { id: 3, name: 'Meisterklasse', sub: 'Auf Leben und Tod', mult: 1.5, pay: 2.8, ruhm: 7, lethal: true, rank: 3 }
 ];
 var DONATIONS = [{ c: 50, p: 5 }, { c: 150, p: 12 }, { c: 400, p: 25 }];
 var SCOUT_COST = 40;

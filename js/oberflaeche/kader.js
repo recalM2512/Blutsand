@@ -82,6 +82,7 @@ ANSICHT.ueberlage = function () {
               '<p class="hinweis" style="color:var(--tinte-3)">Moral: <b>' + g.moral + '</b> von 100</p>' +
               '<p class="hinweis" style="color:var(--tinte-3)">Freunde: <b>' + (fr.length ? fr.map(function (x) { return esc(x.name); }).join(', ') : 'keine') + '</b>' + (fr.length ? ' (+1 % je gesundem Freund im Kampf)' : '') + '</p>' +
               '<p class="hinweis" style="color:var(--tinte-3)">Rivalen im Kader: <b>' + (rv.length ? rv.map(function (x) { return esc(x.name); }).join(', ') : 'keine') + '</b>' + (rv.length ? ' (−1 % je Rivale im Kampf)' : '') + '</p></section>' +
+            '<section class="paragraph"><h3>§ V · AUFSTIEG</h3>' + aufstiegBoxHTML(g) + '</section>' +
           '</div>' +
           '<div class="vertrag-fuss knopfreihe">' +
             '<button class="knopf" data-act="vludus" data-id="' + g.id + '">Im Ludus trainieren</button>' +

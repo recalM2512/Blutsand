@@ -6,7 +6,7 @@
 function newGame() {
   S = { v: 2, gold: 300, ruhm: 0, wins: 0, losses: 0, fights: 0, roster: [], sel: null, fighter: null, diff: 1,
     rel: {}, chron: [], dead: [], ladder: [], rivals: {}, missgunst: 0, flags: {}, pendingEvent: null, evQueue: [], match: null,
-    challenge: null, pendingPack: null, savedAt: 0 };
+    challenge: null, pendingPack: null, gegner: null, pruefung: null, savedAt: 0 };
   var a = makeGlad('common'), b = makeGlad('common');
   addFighter(a, true); addFighter(b, true);
   S.sel = a.id; S.fighter = a.id;
